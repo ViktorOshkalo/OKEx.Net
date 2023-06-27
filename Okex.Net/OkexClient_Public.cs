@@ -11,8 +11,8 @@ public partial class OkexClient
     /// <param name="instrumentId">Instrument ID</param>
     /// <param name="ct">Cancellation Token</param>
     /// <returns></returns>
-    public virtual WebCallResult<IEnumerable<OkexInstrument>> GetInstruments(OkexInstrumentType instrumentType, string underlying = null, string instrumentId = null, CancellationToken ct = default)
-        => GetInstrumentsAsync(instrumentType, underlying, instrumentId, ct).Result;
+    public virtual WebCallResult<IEnumerable<OkexInstrument>> GetInstruments(OkexInstrumentType instrumentType, string underlying = null, string instFamily = null, string instrumentId = null, CancellationToken ct = default)
+        => GetInstrumentsAsync(instrumentType, underlying, instFamily, instrumentId, ct).Result;
     /// <summary>
     /// Retrieve a list of instruments with open contracts.
     /// </summary>
@@ -21,13 +21,14 @@ public partial class OkexClient
     /// <param name="instrumentId">Instrument ID</param>
     /// <param name="ct">Cancellation Token</param>
     /// <returns></returns>
-    public virtual async Task<WebCallResult<IEnumerable<OkexInstrument>>> GetInstrumentsAsync(OkexInstrumentType instrumentType, string underlying = null, string instrumentId = null, CancellationToken ct = default)
+    public virtual async Task<WebCallResult<IEnumerable<OkexInstrument>>> GetInstrumentsAsync(OkexInstrumentType instrumentType, string underlying = null, string instFamily = null, string instrumentId = null, CancellationToken ct = default)
     {
         var parameters = new Dictionary<string, object>
         {
             { "instType", JsonConvert.SerializeObject(instrumentType, new InstrumentTypeConverter(false)) },
         };
         if (!string.IsNullOrEmpty(underlying)) parameters.AddOptionalParameter("uly", underlying);
+        if (!string.IsNullOrEmpty(instFamily)) parameters.AddOptionalParameter("instFamily", instFamily);
         if (!string.IsNullOrEmpty(instrumentId)) parameters.AddOptionalParameter("instId", instrumentId);
 
         var result = await UnifiedApi.ExecuteAsync<OkexRestApiResponse<IEnumerable<OkexInstrument>>>(UnifiedApi.GetUri(Endpoints_V5_Public_Instruments), HttpMethod.Get, ct, parameters).ConfigureAwait(false);
